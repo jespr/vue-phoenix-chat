@@ -1,12 +1,20 @@
 <template>
   <div class="my-app">
     <h1>Vuechat</h1>
-    <ul v-for="message in messages">
-      <li>
-        <small>{{message.received_at}}</small>: {{message.body}}
-      </li>
-    </ul>
-    <input type="text" v-model="message" v-on:keyup.13="sendMessage">
+    <div class="user-details" v-if="enterName">
+      <label>Please enter your name:</label><br>
+      <input type="text" v-model="username">
+      <button v-on:click="connectToChat">Next</button>
+    </div>
+    <div class="messages" v-else>
+      <ul v-for="message in messages">
+        <li>
+          <small>{{message.received_at}}</small>: <strong>{{message.username}}</strong>: {{message.body}}
+        </li>
+      </ul>
+      <strong>{{username}}:</strong><br/>
+      <input type="text" v-model="message" v-on:keyup.13="sendMessage">
+    </div>
   </div>
 </template>
 
@@ -18,7 +26,9 @@ export default {
       socket: null,
       channel: null,
       messages: [],
-      message: ""
+      message: "",
+      username: "",
+      enterName: true
     }
   },
   methods: {
@@ -27,7 +37,8 @@ export default {
       this.message = ''
     },
     connectToChat() {
-      this.socket = new Socket("/socket", {params: {token: window.userToken}}),
+      this.enterName = false
+      this.socket = new Socket("/socket", {params: {username: this.username}}),
       this.socket.connect()
 
       this.channel = this.socket.channel("room:lobby", {});
