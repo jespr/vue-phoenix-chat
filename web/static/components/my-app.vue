@@ -11,21 +11,34 @@
 </template>
 
 <script>
+import {Socket} from "phoenix"
 export default {
   data() {
     return {
+      socket: null,
+      channel: null,
+      messages: [],
       message: ""
-    }
-  },
-  computed: {
-    messages() {
-      return this.$parent.messages
     }
   },
   methods: {
     sendMessage() {
-      this.$parent.channel.push("new_msg", { body: this.message })
+      this.channel.push("new_msg", { body: this.message })
       this.message = ''
+    },
+    connectToChat() {
+      this.socket = new Socket("/socket", {params: {token: window.userToken}}),
+      this.socket.connect()
+
+      this.channel = this.socket.channel("room:lobby", {});
+      this.channel.on("new_msg", payload => {
+        payload.received_at = Date();
+        this.messages.push(payload);
+      });
+
+      this.channel.join()
+        .receive("ok", response => { console.log("Joined successfully", response) })
+        .receive("error", response => { console.log("Unable to join", response) })
     }
   }
 }
