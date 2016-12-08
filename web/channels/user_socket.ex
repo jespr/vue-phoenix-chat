@@ -4,7 +4,8 @@ defmodule Vuechat.UserSocket do
   ## Channels
   channel "room:*", Vuechat.RoomChannel
 
-  transport :websocket, Phoenix.Transports.WebSocket
+  transport :websocket, Phoenix.Transports.WebSocket,
+    timeout: 45_000
   def connect(%{"username" => username}, socket) do
     {:ok, assign(socket, :username, username)}
   end
