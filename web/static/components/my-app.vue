@@ -65,7 +65,7 @@ export default {
 
       this.channel = this.socket.channel("room:lobby", {});
       this.channel.on("new_msg", payload => {
-        payload.received_at = Date();
+        payload.received_at = new Date(payload.received_at*1000).toLocaleString();
         this.messages.push(payload);
       });
 

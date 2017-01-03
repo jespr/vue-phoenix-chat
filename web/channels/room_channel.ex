@@ -14,7 +14,8 @@ defmodule Vuechat.RoomChannel do
   def handle_in("new_msg", %{"body" => body}, socket) do
     message = %{
       body: body,
-      username: socket.assigns.username
+      username: socket.assigns.username,
+      received_at: System.system_time(:seconds)
     }
 
     broadcast! socket, "new_msg", message
@@ -36,8 +37,16 @@ defmodule Vuechat.RoomChannel do
     push socket, "presence_state", Presence.list(socket)
 
     messages = Repo.all(from m in Vuechat.Message, limit: 10)
+
     Enum.each(messages, fn message ->
-      push socket, "new_msg", %{"body" => message.body, "username" => message.username }
+      push socket, "new_msg", %{
+        "body" => message.body,
+        "username" => message.username,
+        "received_at" => message.inserted_at
+          |> Ecto.DateTime.to_erl
+          |> :calendar.datetime_to_gregorian_seconds
+          |> Kernel.-(62_167_219_200)
+      }
     end)
 
     {:noreply, socket}
