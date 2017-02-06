@@ -9,5 +9,6 @@ defmodule Vuechat.Repo.Migrations.CreateMessage do
       timestamps()
     end
 
+    create index(:messages, :inserted_at)
   end
 end
