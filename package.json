@@ -19,6 +19,6 @@
     "javascript-brunch": "~2.0.0",
     "node-sass": "^3.13.0",
     "uglify-js-brunch": "~2.0.1",
-    "vue-brunch": "git+https://github.com/nblackburn/vue-brunch.git#dev"
+    "vue-brunch": "git+https://github.com/nblackburn/vue-brunch.git"
   }
 }
