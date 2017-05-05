@@ -8,20 +8,7 @@
     </div>
     <div id="main-container" v-else>
       <users-list/>
-      <div id="messages-list">
-        <ul>
-          <transition-group name="message-appear">
-            <li v-for="message in messages" v-bind:key="message">
-              <div class="message-metadata">
-                <span class="username">{{message.username}}</span>
-                <span class="received-at">{{message.received_at}}</span>
-              </div>
-
-              {{message.body}}
-            </li>
-          </transition-group>
-        </ul>
-      </div>
+      <messages-list/>
       <div id="your-message">
         <input type="text" placeholder="What do you have to say?" v-model="message" v-on:keyup.13="sendMessage">
       </div>
@@ -32,20 +19,21 @@
 <script>
 import {Socket, Presence} from "phoenix"
 import UsersList from "./users-list"
+import MessagesList from "./messages-list"
 
 export default {
   data() {
     return {
       socket: null,
       channel: null,
-      messages: [],
       message: "",
       username: "",
       enterName: true,
     }
   },
   components: {
-    'users-list': UsersList
+    'users-list': UsersList,
+    'messages-list': MessagesList
   },
   methods: {
     sendMessage() {
@@ -60,8 +48,7 @@ export default {
 
       this.channel = this.socket.channel("room:lobby", {});
       this.channel.on("new_msg", payload => {
-        payload.received_at = new Date(payload.received_at*1000).toLocaleString();
-        this.messages.push(payload);
+        this.$store.commit('addMessage', { payload });
       });
 
       this.channel.on("presence_state", state => {

@@ -6,7 +6,8 @@ Vue.use(Vuex)
 // root state object.
 // each Vuex instance is just a single state tree.
 const state = {
-  users: []
+  users: [],
+  messages: []
 }
 
 // mutations are operations that actually mutates the state.
@@ -17,6 +18,10 @@ const state = {
 const mutations = {
   addUsers (state, { users }) {
     state.users = users
+  },
+  addMessage (state, { payload }) {
+    payload.received_at = new Date(payload.received_at*1000).toLocaleString()
+    state.messages.push(payload)
   }
 }
 
