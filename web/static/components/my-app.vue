@@ -7,16 +7,7 @@
       <button v-on:click="connectToChat">Next</button>
     </div>
     <div id="main-container" v-else>
-      <div id="users-list">
-        <h3>Online</h3>
-        <ul>
-          <transition-group name="user-appear">
-            <li v-for="user in users" v-bind:key="user.user">
-              {{user.user}} ({{user.online_at}})
-            </li>
-          </transition-group>
-        </ul>
-      </div>
+      <users-list/>
       <div id="messages-list">
         <ul>
           <transition-group name="message-appear">
@@ -40,6 +31,8 @@
 
 <script>
 import {Socket, Presence} from "phoenix"
+import UsersList from "./users-list"
+
 export default {
   data() {
     return {
@@ -49,8 +42,10 @@ export default {
       message: "",
       username: "",
       enterName: true,
-      users: []
     }
+  },
+  components: {
+    'users-list': UsersList
   },
   methods: {
     sendMessage() {
@@ -84,14 +79,10 @@ export default {
         .receive("error", response => { console.log("Unable to join", response) })
     },
     assignUsers(presences) {
-      let formatTimestamp = (timestamp) => {
-        timestamp = parseInt(timestamp)
-        let date = new Date(timestamp)
-        return date.toLocaleTimeString()
-      }
-      this.users = Presence.list(presences, (user, {metas: metas}) => {
-        return { user: user, online_at: formatTimestamp(metas[0].online_at) }
+      let users = Presence.list(presences, (user, {metas: metas}) => {
+        return { name: user, online_at: metas[0].online_at }
       })
+      this.$store.commit('addUsers', { users })
     }
   }
 }
